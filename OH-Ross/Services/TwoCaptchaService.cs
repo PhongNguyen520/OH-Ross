@@ -35,7 +35,6 @@ public static class TwoCaptchaService
 
         using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
 
-        // Step 1: Submit captcha
         Console.WriteLine("[2Captcha] Submitting captcha image...");
         var form = new FormUrlEncodedContent(new Dictionary<string, string>
         {
@@ -68,9 +67,8 @@ public static class TwoCaptchaService
             return null;
         }
 
-        Console.WriteLine($"[2Captcha] Task ID: {requestId}. Polling for result...");
+        Console.WriteLine("[2Captcha] Polling for result...");
 
-        // Step 2: Poll for result
         var stopAt = DateTime.UtcNow.AddMilliseconds(MaxWaitMs);
         while (DateTime.UtcNow < stopAt)
         {
@@ -89,7 +87,7 @@ public static class TwoCaptchaService
 
                 if (resStatus == 1 && !string.IsNullOrEmpty(resRequest))
                 {
-                    Console.WriteLine($"[2Captcha] Solved: {resRequest}");
+                    Console.WriteLine("[2Captcha] Solved.");
                     return resRequest;
                 }
 
