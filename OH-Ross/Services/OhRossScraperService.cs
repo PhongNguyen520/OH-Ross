@@ -22,15 +22,15 @@ public class OhRossScraperService
         _captchaService = captchaService ?? throw new ArgumentNullException(nameof(captchaService));
     }
 
-    /// <summary>Runs the full scrape workflow and reports final stats to Apify.</summary>
-    public async Task RunAsync(InputConfig input)
+    /// <summary>Runs the full scrape workflow and reports final stats to Apify. Returns false if validation or case-type check failed (caller should exit with non-zero code).</summary>
+    public async Task<bool> RunAsync(InputConfig input)
     {
         input ??= new InputConfig();
         var validationError = ValidateInput(input);
         if (validationError != null)
         {
             await ApifyHelper.SetStatusMessageAsync(validationError, isTerminal: true);
-            return;
+            return false;
         }
 
         var stats = new ScrapeRunStats();
@@ -61,6 +61,7 @@ public class OhRossScraperService
         catch (InvalidOperationException ex) when (ex.Message.StartsWith("Invalid Case Types", StringComparison.Ordinal))
         {
             await ApifyHelper.SetStatusMessageAsync(ex.Message, isTerminal: true);
+            return false;
         }
         finally
         {
@@ -74,6 +75,7 @@ public class OhRossScraperService
         if (stats.FailedCases.Count > 0)
             summary += " Failed Cases: [" + string.Join(", ", stats.FailedCases) + "]";
         await ApifyHelper.SetStatusMessageAsync(summary, isTerminal: true);
+        return true;
     }
 
     /// <summary>Validates StartDate and EndDate format (MM/DD/YYYY). Returns error message or null if valid.</summary>

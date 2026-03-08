@@ -38,7 +38,9 @@ if (string.IsNullOrWhiteSpace(apiKey))
 
 var captchaService = new TwoCaptchaRecaptchaService(apiKey);
 var scraper = new OhRossScraperService(captchaService);
-await scraper.RunAsync(input ?? new InputConfig());
+var success = await scraper.RunAsync(input ?? new InputConfig());
+if (!success)
+    Environment.Exit(1);
 
 Console.WriteLine("Done.");
 
